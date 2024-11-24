@@ -16,10 +16,45 @@ type Props = {
 export default function ProfileInfoForm({ profileInfo }: Props) {
   const [coverUrl, setCoverUrl] = useState(profileInfo?.coverUrl || null);
   const [avatarUrl, setAvatarUrl] = useState(profileInfo?.avatarUrl || null);
+  const [username, setUsername] = useState(profileInfo?.username || "");
+  const [displayName, setDisplayName] = useState(profileInfo?.displayName || "");
+  const [bio, setBio] = useState(profileInfo?.bio || "");
 
   async function handleFormAction(formData: FormData) {
-    await saveProfile(formData);
-    toast.success("Profile saved!");
+    try {
+      console.log("Form data before save:", Object.fromEntries(formData.entries()));
+
+      // Save profile to MongoDB
+      await saveProfile(formData);
+
+      // Show success message immediately
+      toast.success("Profile saved!");
+
+      console.log("Profile saved successfully. Fetching updated data...");
+
+      // Fetch updated profile data to refresh the UI
+      const response = await fetch("/api/getProfile");
+      if (!response.ok) {
+        throw new Error(`Failed to fetch profile data: ${response.statusText}`);
+      }
+
+      const updatedProfile = await response.json();
+      console.log("Updated profile data:", updatedProfile);
+
+      setCoverUrl(updatedProfile.coverUrl);
+      setAvatarUrl(updatedProfile.avatarUrl);
+      setUsername(updatedProfile.username);
+      setDisplayName(updatedProfile.displayName);
+      setBio(updatedProfile.bio);
+    } catch (error) {
+      console.error("Error in handleFormAction:", error);
+
+      if (error instanceof Error) {
+        toast.error(`Failed to save profile: ${error.message}`);
+      } else {
+        toast.error("An unknown error occurred.");
+      }
+    }
   }
 
   return (
@@ -70,7 +105,8 @@ export default function ProfileInfoForm({ profileInfo }: Props) {
             username
           </label>
           <input
-            defaultValue={profileInfo?.username}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             name="username"
             id="usernameIn"
             type="text"
@@ -82,7 +118,8 @@ export default function ProfileInfoForm({ profileInfo }: Props) {
             display name
           </label>
           <input
-            defaultValue={profileInfo?.displayName}
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
             name="displayName"
             id="displayNameIn"
             type="text"
@@ -93,7 +130,8 @@ export default function ProfileInfoForm({ profileInfo }: Props) {
       <div>
         <label className="input-label" htmlFor="bioIn">bio</label>
         <textarea
-          defaultValue={profileInfo?.bio}
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
           id="bioIn"
           name="bio"
           placeholder="bio"

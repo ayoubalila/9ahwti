@@ -1,9 +1,10 @@
+import Header from "@/components/Header";
+import {authOptions} from "@/lib/authOptions";
 import type { Metadata } from "next";
+import {getServerSession} from "next-auth";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/Header";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/authOptions";
+import {Toaster} from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,7 +22,8 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Header session = {session}/>
+        <Toaster />
+        <Header session={session} />
         {children}
       </body>
     </html>

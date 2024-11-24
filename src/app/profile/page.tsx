@@ -8,7 +8,7 @@ export default async function ProfilePage() {
   return (
     <div className="max-w-2xl mx-auto px-4">
       {/* Profile Form */}
-      <ProfileInfoForm />
+      <ProfileInfoForm profileInfo={null} />
 
       {/* Donations List */}
       <div>
