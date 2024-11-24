@@ -14,8 +14,8 @@ type Props = {
 };
 
 export default function ProfileInfoForm({ profileInfo }: Props) {
-  const [coverUrl, setCoverUrl] = useState(profileInfo?.coverUrl || null);
-  const [avatarUrl, setAvatarUrl] = useState(profileInfo?.avatarUrl || null);
+  const [coverUrl, setCoverUrl] = useState(profileInfo?.coverUrl || "");
+  const [avatarUrl, setAvatarUrl] = useState(profileInfo?.avatarUrl || "");
   const [username, setUsername] = useState(profileInfo?.username || "");
   const [displayName, setDisplayName] = useState(profileInfo?.displayName || "");
   const [bio, setBio] = useState(profileInfo?.bio || "");
@@ -26,26 +26,9 @@ export default function ProfileInfoForm({ profileInfo }: Props) {
 
       // Save profile to MongoDB
       await saveProfile(formData);
-
-      // Show success message immediately
       toast.success("Profile saved!");
 
-      console.log("Profile saved successfully. Fetching updated data...");
-
-      // Fetch updated profile data to refresh the UI
-      const response = await fetch("/api/getProfile");
-      if (!response.ok) {
-        throw new Error(`Failed to fetch profile data: ${response.statusText}`);
-      }
-
-      const updatedProfile = await response.json();
-      console.log("Updated profile data:", updatedProfile);
-
-      setCoverUrl(updatedProfile.coverUrl);
-      setAvatarUrl(updatedProfile.avatarUrl);
-      setUsername(updatedProfile.username);
-      setDisplayName(updatedProfile.displayName);
-      setBio(updatedProfile.bio);
+      console.log("Profile saved successfully.");
     } catch (error) {
       console.error("Error in handleFormAction:", error);
 
@@ -92,11 +75,11 @@ export default function ProfileInfoForm({ profileInfo }: Props) {
           <div className="absolute -bottom-2 -right-2">
             <UploadButton onUploadComplete={setAvatarUrl} />
           </div>
-          <input type="hidden" name="avatarUrl" value={avatarUrl || ''} />
+          <input type="hidden" name="avatarUrl" value={avatarUrl} />
         </div>
         <div className="absolute right-2 bottom-2">
           <UploadButton onUploadComplete={setCoverUrl} />
-          <input type="hidden" name="coverUrl" value={coverUrl || ''} />
+          <input type="hidden" name="coverUrl" value={coverUrl} />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-2">
@@ -128,7 +111,9 @@ export default function ProfileInfoForm({ profileInfo }: Props) {
         </div>
       </div>
       <div>
-        <label className="input-label" htmlFor="bioIn">bio</label>
+        <label className="input-label" htmlFor="bioIn">
+          bio
+        </label>
         <textarea
           value={bio}
           onChange={(e) => setBio(e.target.value)}
