@@ -1,6 +1,6 @@
 import {model, models, Schema} from 'mongoose';
 
-type ProfileInfo = {
+export type ProfileInfo = {
 email: string;
 username: string;
 displayName: string;
