@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { signIn } from 'next-auth/react';
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -21,7 +22,6 @@ export default function SignUpPage() {
     setError('');
     setSuccess('');
 
-    // Simulated API Call
     try {
       const response = await fetch('/api/signup', {
         method: 'POST',
@@ -35,10 +35,21 @@ export default function SignUpPage() {
         return;
       }
 
-      setSuccess('Account created successfully! Redirecting...');
-      setTimeout(() => {
-        window.location.href = '/profile'; // Redirect after success
-      }, 2000);
+      setSuccess('Account created successfully! Logging you in...');
+
+      // Authenticate the user after sign-up
+      const signInResponse = await signIn('credentials', {
+        email: formData.email,
+        password: formData.password,
+        redirect: false, // Avoid auto-redirect
+      });
+
+      if (!signInResponse?.error) {
+        // Redirect to /profile after successful authentication
+        window.location.href = '/profile';
+      } else {
+        setError('Sign-up succeeded, but login failed. Please log in manually.');
+      }
     } catch (err) {
       setError('Something went wrong. Please try again.');
     }
