@@ -6,7 +6,7 @@ import { faSave } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { signOut } from "next-auth/react";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
 type Props = {
@@ -20,23 +20,62 @@ export default function ProfileInfoForm({ profileInfo }: Props) {
   const [displayName, setDisplayName] = useState(profileInfo?.displayName || "");
   const [bio, setBio] = useState(profileInfo?.bio || "");
 
+  // Fonction pour recharger les données du profil
+  async function reloadProfile() {
+    try {
+      const response = await fetch('/api/getProfile');
+      if (response.ok) {
+        const updatedProfile = await response.json();
+
+        console.log("Profile data reloaded:", updatedProfile);
+
+        // Mettre à jour tous les champs du profil
+        setCoverUrl(updatedProfile.coverUrl || "");
+        setAvatarUrl(updatedProfile.avatarUrl || "");
+        setUsername(updatedProfile.username || "");
+        setDisplayName(updatedProfile.displayName || "");
+        setBio(updatedProfile.bio || "");
+      } else {
+        console.error("Failed to reload profile: ", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error reloading profile: ", error);
+    }
+  }
+
+  useEffect(() => {
+    // Recharger les données du profil si `profileInfo` est mis à jour
+    if (profileInfo) {
+      setCoverUrl(profileInfo.coverUrl || "");
+      setAvatarUrl(profileInfo.avatarUrl || "");
+      setUsername(profileInfo.username || "");
+      setDisplayName(profileInfo.displayName || "");
+      setBio(profileInfo.bio || "");
+    }
+  }, [profileInfo]);
+
   async function handleFormAction(formData: FormData) {
     try {
       console.log("Form data before save:", Object.fromEntries(formData.entries()));
-
-      // Save profile to MongoDB
       await saveProfile(formData);
       toast.success("Profile saved!");
 
-      console.log("Profile saved successfully.");
+      // Recharger les données du profil après sauvegarde
+      await reloadProfile();
+
+      // Recharger la page pour mettre à jour l'en-tête
+      window.location.reload();
     } catch (error) {
       console.error("Error in handleFormAction:", error);
+      toast.error("Failed to save profile.");
+    }
+  }
 
-      if (error instanceof Error) {
-        toast.error(`Failed to save profile: ${error.message}`);
-      } else {
-        toast.error("An unknown error occurred.");
-      }
+  async function handleLogout() {
+    try {
+      await signOut({ callbackUrl: '/' }); // Redirection vers la page principale après logout
+    } catch (error) {
+      console.error("Error during logout:", error);
     }
   }
 
@@ -93,7 +132,7 @@ export default function ProfileInfoForm({ profileInfo }: Props) {
             name="username"
             id="usernameIn"
             type="text"
-            placeholder="username"
+            placeholder="Set your username"
           />
         </div>
         <div>
@@ -129,7 +168,7 @@ export default function ProfileInfoForm({ profileInfo }: Props) {
         </button>
         <button
           className="mt-4 bg-gray-200 border border-gray-300 px-4 py-2 rounded-lg flex gap-2 items-center"
-          onClick={() => signOut()}
+          onClick={handleLogout}
           type="button"
         >
           Logout

@@ -14,14 +14,19 @@ export async function saveProfile(formData: FormData) {
 
     const { username, displayName, bio, coverUrl, avatarUrl } = Object.fromEntries(formData);
 
+    // Vérification d'unicité du username
+    const existingUser = await ProfileInfoModel.findOne({ username, email: { $ne: email } });
+    if (existingUser) {
+      throw new Error("Username already taken. Please choose another one.");
+    }
+
+    // Sauvegarde ou mise à jour dans la collection profileinfos
     const profileInfoDoc = await ProfileInfoModel.findOne({ email });
     if (profileInfoDoc) {
-      // Update the existing profile
       profileInfoDoc.set({ username, displayName, bio, coverUrl, avatarUrl });
       await profileInfoDoc.save();
       console.log("Profile updated:", profileInfoDoc);
     } else {
-      // Create a new profile if it doesn't exist
       const newProfile = await ProfileInfoModel.create({
         username,
         displayName,
@@ -33,9 +38,28 @@ export async function saveProfile(formData: FormData) {
       console.log("Profile created:", newProfile);
     }
 
+    // Vérifier que la connexion MongoDB est bien établie
+    const db = mongoose.connection.db;
+    if (!db) {
+      throw new Error("Database connection is not established.");
+    }
+
+    // Mise à jour dans la collection users
+    const usersCollection = db.collection("users");
+    await usersCollection.updateOne(
+      { email },
+      { $set: { username } } // Mettre à jour uniquement le username
+    );
+
     return true;
   } catch (error) {
     console.error("Error saving profile:", error);
-    throw new Error("Failed to save profile.");
+
+    // Gestion des erreurs
+    if (error instanceof Error) {
+      throw new Error(error.message || "Failed to save profile.");
+    } else {
+      throw new Error("An unknown error occurred while saving the profile.");
+    }
   }
 }

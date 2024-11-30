@@ -3,6 +3,9 @@ import mongoose from "mongoose";
 import Image from "next/image";
 import { faCoffee } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Donation, DonationModel } from "@/models/Donation";
+import DonationForm from "@/components/DonationForm";
+import DonationStatus from "@/components/DonationStatus";
 
 type Props = {
   params: {
@@ -23,8 +26,15 @@ export default async function ProfilePage({ params }: Props) {
     return <div>404 - Profile Not Found</div>;
   }
 
+  // Fetch donations for this user
+  const donations: Donation[] = await DonationModel.find({ paid: true, email: profileInfoDoc.email });
+
   return (
     <div>
+      {/* Donation Status */}
+      <DonationStatus />
+
+      {/* Profile Cover Image */}
       <div className="w-full h-48">
         <Image
           src={profileInfoDoc.coverUrl}
@@ -34,6 +44,8 @@ export default async function ProfilePage({ params }: Props) {
           className="object-cover object-center h-48"
         />
       </div>
+
+      {/* Profile Details */}
       <div className="max-w-2xl px-2 mx-auto relative -mt-16">
         <div className="flex items-end gap-3">
           <div className="size-36 overflow-hidden rounded-xl border-2 border-white">
@@ -54,9 +66,38 @@ export default async function ProfilePage({ params }: Props) {
             </h2>
           </div>
         </div>
+
+        {/* Profile Bio */}
         <div className="bg-white rounded-xl p-4 shadow-sm mt-4">
           <h3 className="font-semibold">About {profileInfoDoc.username}</h3>
           <p>{profileInfoDoc.bio}</p>
+        </div>
+
+        {/* Donations and Donation Form */}
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          {/* Donations Section */}
+          <div className="bg-white rounded-xl p-4 shadow-sm">
+            <h3 className="font-semibold">Recent Supporters:</h3>
+            {!donations.length && <p>No recent donations</p>}
+            {donations.length > 0 && (
+              <div className="mt-2">
+                {donations.map(donation => (
+                  <div className="py-2" key={donation._id.toString()}>
+                    <h3>
+                      <span className="font-semibold">{donation.name}</span> bought you{' '}
+                      {donation.amount > 1 ? `${donation.amount} coffees` : 'a coffee'}
+                    </h3>
+                    <p className="bg-gray-100 p-2 rounded-md">{donation.message}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Donation Form */}
+          <div className="bg-white rounded-xl p-4 shadow-sm">
+            <DonationForm email={profileInfoDoc.email} />
+          </div>
         </div>
       </div>
     </div>
