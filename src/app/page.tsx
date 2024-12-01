@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation"; // Correct import
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
@@ -8,20 +8,22 @@ export default function Home() {
   return (
     <section className="max-w-lg mx-auto text-center">
       <h1 className="text-6xl font-bold">
-        Fund your
+      Fuel
         <br />
-        creative work
+        Your Passion
       </h1>
       <h2 className="mt-4 mb-8">
-        Accept support for your work.
+      Share your work and connect with your supporters.
         <br />
-        It&apos;s easier than you think.
+        It&apos;s simpler than ever.
+
+
       </h2>
       <button
-        onClick={() => router.push("/start-my-page")}
+        onClick={() => router.push("/explore")} // Updated redirect
         className="bg-yellow-300 px-8 py-4 font-bold rounded-full"
       >
-        Start my page
+        Explore more
       </button>
     </section>
   );
