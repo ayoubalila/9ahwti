@@ -8,15 +8,15 @@ import DonationForm from "@/components/DonationForm";
 import DonationStatus from "@/components/DonationStatus";
 
 type Props = {
-  params: {
+  params: Promise<{
     username: string;
-  };
+  }>;
 };
 
 export const revalidate = 0; // Disable caching for real-time data fetching
 
 export default async function ProfilePage({ params }: Props) {
-  const username = params.username;
+  const { username } = await params; // Ajout de `await` pour résoudre le type `Promise`
 
   // Connect to MongoDB
   await mongoose.connect(process.env.MONGODB_URI as string);
@@ -81,7 +81,7 @@ export default async function ProfilePage({ params }: Props) {
             {!donations.length && <p>No recent donations</p>}
             {donations.length > 0 && (
               <div className="mt-2">
-                {donations.map(donation => (
+                {donations.map((donation) => (
                   <div className="py-2" key={donation._id.toString()}>
                     <h3>
                       <span className="font-semibold">{donation.name}</span> bought you{' '}

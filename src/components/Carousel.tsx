@@ -16,7 +16,7 @@ export default function Carousel({ items }: CarouselProps) {
             height={100}
             className="rounded-full mx-auto mb-4"
           />
-          <blockquote className="text-center italic mb-2">"{item.quote}"</blockquote>
+          <blockquote className="text-center italic mb-2">&quot;{item.quote}&quot;</blockquote>
           <p className="text-center text-sm font-medium text-gray-500">{item.stats}</p>
           <p className="text-center font-bold">{item.name}</p>
         </div>

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
+import Link from 'next/link';
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -50,7 +51,7 @@ export default function SignUpPage() {
       } else {
         setError('Sign-up succeeded, but login failed. Please log in manually.');
       }
-    } catch (err) {
+    } catch {
       setError('Something went wrong. Please try again.');
     }
   };
@@ -144,12 +145,12 @@ export default function SignUpPage() {
 
         <p className="mt-4 text-center text-sm text-gray-600">
           Already have an account?{' '}
-          <a
+          <Link
             href="/login"
             className="font-medium text-yellow-400 hover:text-yellow-500"
           >
             Log in
-          </a>
+          </Link>
         </p>
       </div>
     </div>

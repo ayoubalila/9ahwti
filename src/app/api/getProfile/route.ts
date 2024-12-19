@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import { getServerSession } from "next-auth";
 import client from "@/lib/db";
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     await mongoose.connect(process.env.MONGODB_URI as string);
 
